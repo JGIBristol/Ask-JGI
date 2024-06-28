@@ -109,12 +109,7 @@ df |>
 m1 <- lm(wellbeing ~ parent_grp*age , data=df)
 summary(m1)
 
-
-m1 <- lmer(wellbeing ~ parent_grp + parent_grp:age + (1 | pid), data=df)
-summary(m1)
-
-
-# Notes:
+# Notes -------------------------------------------------------------------
 # Need to take care when interpretating the coefficients
 # (see below)
 
