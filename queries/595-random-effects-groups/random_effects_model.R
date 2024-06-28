@@ -1,9 +1,11 @@
+# Standard R libraries
 library(ggplot2)
 library(tibble)
 library(dplyr)
 library(tidyr)
-library(lme4)
-library(sjPlot)
+
+library(lme4) # libraries for Multi-level modelling
+library(sjPlot) # library for plotting lme4 and producing tables of coefficients
 
 # Generating Data ---------------------------------------------------------
 
