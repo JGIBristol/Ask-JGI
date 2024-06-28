@@ -113,6 +113,16 @@ summary(m1)
 m1 <- lmer(wellbeing ~ parent_grp + parent_grp:age + (1 | pid), data=df)
 summary(m1)
 
+
+# Notes:
+# Need to take care when interpretating the coefficients
+# (see below)
+
+# If you wanted to compare the coefficients you 
+# could look into "contrast coding". However there
+# you would need to be extremely careful with your
+# interpretation. 
+
 # Output
 # Fixed effects:
 #                         Estimate
@@ -123,14 +133,6 @@ summary(m1)
 # parent_grpnever:age     14.91641 <- Average increase in wellbeing for group never, compared to their wellbeing at 23
 # parent_grpnew:age        9.94495 <- Average increase in wellbeing for group new, compared to their wellbeing at 23
 
-
-# Contrast coding
-
-c<-contr.treatment(4)
-my.coding<-matrix(rep(1/4, 12), ncol=3)
-my.simple<-c-my.coding
-
-my.simple
 
 
 
