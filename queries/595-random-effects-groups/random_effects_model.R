@@ -3,6 +3,7 @@ library(tibble)
 library(dplyr)
 library(tidyr)
 library(lme4)
+library(sjPlot)
 
 # Generating Data ---------------------------------------------------------
 
@@ -106,8 +107,25 @@ df |>
 
 # Modelling ---------------------------------------------------------------
 
-m1 <- lm(wellbeing ~ parent_grp*age , data=df)
+m1 <- lmer(wellbeing ~ parent_grp + parent_grp:age + (1 | pid), data=df)
 summary(m1)
+
+plot_model(m1) # Library from SJPlot
+tab_model(m1) # Print the table, SJPlot
+
+plot(m1) # Plot Residuals
+
+newdata <- with(df, expand.grid(age=unique(age), parent_grp=unique(parent_grp)))
+
+newdata$prediction <- predict(m1, newdata=newdata, re.form=NA)
+
+df |> 
+  mutate(predicted = predict(m1)) |>
+  ggplot() +
+  geom_jitter(aes(x=age, y=wellbeing, color=parent_grp), alpha=0.2) +
+  
+  geom_line(data = newdata,aes(x=age, y = prediction, color=parent_grp),size=1) 
+  labs(title="Wellbeing by Age", x="Age", y="Wellbeing", color="Parent Group")
 
 # Notes -------------------------------------------------------------------
 # Need to take care when interpretating the coefficients
