@@ -1,0 +1,331 @@
+---
+title: "Antenatal hashed data"
+output: html_document
+date: "2025-11-27"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(readxl)
+library(tidyverse)
+library(fastLink)
+library(igraph)
+library(ggraph)
+library(tidygraph)
+```
+
+```{r import-data, include=FALSE}
+anc_sharedhashed <- read_excel("data/anc_sharedhashed.xlsx")
+```
+
+## Data overview
+
+We have the following information about fields in the dataset:
+
++ Visit date- This should occur several times as we expect mothers to have different visit dates throughout their pregnancy.
++ Client_no- These are retained throughout the visits, but we have noticed that they are sometimes reassigned to other mothers, i.e, 3 mothers with client number 189 in all visits.
++ Last name- mother's name, but it's possible for people to have similar names.
++ First name- mother's first name, but possible to have similar names.
++ Client contacts- We have missing data on contacts. Some mothers don’t possess phones
++ Ageyrs- Participant age at visit date. This should be constant or 1 year added.
++ Location- district, parish, and village should be similar. But someone can shift.
++ Ancvisit- the visit number should change with the visit date.
++ Anc_parity and anc_parity2- parity is usually recorded as 4+0, 4+1. During data entry, this was separated and 4 (anc_parity) and 0 (anc_parity2).
++ Anc_gravity- should be constant throughout the visits.
++ Anc_gestationalage- should change with the visit number and visit date..
++ Anc_height- should be similar throughout the visits.
++ Expected date - delvry_day, expected_mmdlvry, and expected_yrdlvry should be similar or slightly different for all visits.
+
+```{r}
+# Relevant columns for matching
+rel_cols <- c("visit_date", "client_no", "last_name", "first_name",
+              "client_contact",
+              "ageyrs", "distr", "parish",
+              "village1", "anavisit", "anc_parity", "anc_parity_2",
+              "anc_gravida", "anc_gestationalage", "anc_height",
+              "delvry_day", "expct_mmdlvry", "expected_yrdlvry")
+```
+
+
+First, some data cleaning:
+
++ Replaced all "NIL" values with `NA`: need to confirm if that is correct?
++ Removed visit dates that were in the future
++ Created a new variable for expected delivery date based on the day, month, and year
+
+```{r}
+anc_clean <- anc_sharedhashed %>% 
+  # Filter just to the relevant columns
+  select(all_of(rel_cols)) %>%
+  mutate(
+    # Replace visit days in the future with NA
+    visit_date = if_else(visit_date > today(), 
+                              NA_POSIXct_,
+                              as.POSIXct(visit_date)),
+    # Replace expected delivery years way in the future with NA
+    expected_yrdlvry = if_else(expected_yrdlvry > year(today()) + 5,
+                               NA_integer_,
+                               expected_yrdlvry)
+    ) %>% 
+  # Replace all "NIL" with NA
+  mutate_if(is.character, ~na_if(., "NIL")) %>%
+  # Clean expected delivery month
+  # Get the first three letters & convert to month number
+  mutate(expected_mmdlvry = match(substr(expct_mmdlvry, 1, 3),
+                                  month.abb)) %>% 
+  # Clean expected delivery year
+  # Some of the years are just 2 digits- convert to 4 digits
+  mutate(expected_yrdlvry = ifelse(nchar(expected_yrdlvry) == 2,
+                                   as.numeric(paste0("20", expected_yrdlvry)),
+                                  expected_yrdlvry)) %>%
+  mutate(
+    # Add a column to keep track of which visits are mapped to which patient
+    record_id = row_number(),
+    # Add a column for expected delivery date based on day, month, and year
+    expected_delivery_date = case_when(
+      !is.na(delvry_day) & !is.na(expected_mmdlvry) & !is.na(expected_yrdlvry) ~
+        make_date(year = as.integer(expected_yrdlvry),
+                  month = as.integer(expected_mmdlvry),
+                  day = as.integer(delvry_day)),
+      TRUE ~ NA_Date_
+    ),
+    # Make sure numeric variables are numeric
+    ageyrs = as.numeric(ageyrs),
+    anc_gravida = as.numeric(anc_gravida),
+    anc_parity  = as.numeric(anc_parity),
+    anc_parity_2 = as.numeric(anc_parity_2),
+    # Clean the location variables
+    distr_clean   = tolower(distr),
+    parish_clean  = tolower(parish),
+    village_clean = tolower(village1)
+  ) %>%
+  # Create a numeric column for expected delivery date
+  # Days since 2020-01-01
+  mutate(numeric_delivery_date = as.numeric(expected_delivery_date - as.Date("2020-01-01")))
+```
+
+
+We can do a bit of exploratory data analysis.
+
+```{r}
+# histogram of visit date
+ggplot(anc_clean, aes(visit_date)) + 
+  geom_histogram(bins = 70) +
+  scale_x_datetime(date_labels = "%Y-%m-%d") +
+  theme_bw() +
+  labs(title = "Visit dates",
+       x = "Visit date",
+       y = "Count")
+```
+
+We can look specifically at Client Number 189 to see what might be going on in a situation where we know the same client number is associated with 3 different people:
+
+```{r}
+# Look at Client number 189
+anc_clean %>% filter(client_no == 189) %>%
+  select(visit_date, client_no, last_name, first_name,
+         client_contact,
+         ageyrs, distr, parish,
+         village1, anavisit, anc_parity, anc_parity_2,
+         anc_gravida, anc_gestationalage, anc_height,
+         delvry_day, expct_mmdlvry, expected_yrdlvry)
+```
+
+## Attempt at probabilistic data linkage
+
+I am using the R package `fastLink` to try to match records probabilistically based on the fields you designated as informative. Since the data has been anonymised via hashing, I can no longer do a "fuzzy match" on the name or contact columns, e.g. something that would allow me to match "Jonathan" with "Johnathan" or a phone number with a missing digit. I am instead treating those fields as exact matches. We can potentially revisit this issue later if you end up wanting to run the matching code yourself with access to the unmodified data.
+
+I am matching in the following way:
+
+Exact matches:
+
++ First name
++ Last name
++ Client contact
++ Client number
+
+Numeric matches:
+
++ Age in years
++ Gestational age
++ Gravity
++ Height
++ Expected delivery date (measured in days since 2020-01-01)
+
+```{r}
+matching_vars <- c("client_no",
+                   "last_name",
+                   "first_name",
+                   "client_contact",
+                   "ageyrs",
+                   "anc_parity",
+                   "anc_parity_2",
+                   "anc_gravida",
+                   "anc_height",
+                   "numeric_delivery_date",
+                   "distr_clean",
+                   "parish_clean",
+                   "village_clean")
+exact_vars <- c(
+  "client_no",
+  "first_name",
+  "last_name",
+  "client_contact"
+)
+stringdist_vars <- c(
+  "distr_clean",
+  "parish_clean",
+  "village_clean"
+)
+numeric_vars <- c(
+  "ageyrs",
+  "anc_parity",
+  "anc_parity_2",
+  "anc_gravida",
+  "anc_height",
+  "numeric_delivery_date"
+)
+
+# Perform the probabilistic matching
+fl_out <- fastLink(
+  dfA = anc_clean,
+  dfB = anc_clean,
+  varnames = matching_vars,
+  stringdist.match = stringdist_vars,
+  numeric.match = numeric_vars
+)
+```
+
+Now we can examine the output of the matching procedure. The `fastLink` function returns a list with several components, including the matched pairs and the estimated parameters of the matching model. We are only getting pairs with a match probability of at least 85% (which is a parameter we can adjust if needed). 
+
+```{r}
+# Extract matched pairs
+matched_pairs <- data.frame(a = as.character(fl_out$matches$inds.a),
+                            b = as.character(fl_out$matches$inds.b),
+                            posterior = fl_out$posterior)
+
+# Build the graph
+g <- graph_from_data_frame(d = matched_pairs,
+                           directed = FALSE,
+                           vertices = as.character(anc_clean$record_id))
+
+clusters <- components(g)
+
+patient_id_map <- data.frame(
+  record_id = names(clusters$membership),
+  patient_id = clusters$membership,
+  stringsAsFactors = FALSE
+) %>%
+  mutate(record_id = as.integer(record_id))
+
+anc_matched <- anc_clean %>%
+  left_join(patient_id_map, by = "record_id")
+
+records_per_patient <- anc_matched %>%
+  group_by(patient_id) %>%
+  summarise(n_records = n()) %>%
+  arrange(desc(n_records))
+```
+
+This method of linkage is giving us `r length(unique(anc_matched$patient_id))` unique patients in the dataset. We seem to have a problem where `r records_per_patient$n_records[1]` records are all matched to a single patient ID, which suggests that the matching criteria may be too lenient. Let's try to figure out what is going on here. We can visualise just the giant cluster:
+
+```{r}
+# Plot all edges connected to vertex "1"
+target_record <- "1"   
+cluster_members <- names(clusters$membership[clusters$membership == target_record])
+sub_g <- induced_subgraph(g, vids = cluster_members)
+# Convert to tidygraph object for ggraph plotting
+tg <- as_tbl_graph(sub_g)
+
+plot(sub_g,
+     vertex.size = 3,
+     vertex.label = NA,
+     edge.width = log(3 * E(sub_g)$posterior),
+     main = "Giant cluster of matched records")
+
+# ggraph(tg, layout = "igraph", algorithm = "kk") +
+#   geom_edge_link(aes(color = posterior, width = posterior), alpha = 0.8) +
+#   geom_node_point(size = 2) +
+#   # scale_edge_color_gradient(low = "lightgray", high = "red") +
+#   scale_edge_color_viridis(
+#     name = "Posterior",
+#     aesthetics = "edge_colour"
+#   ) +
+#   scale_edge_width(range = c(0.2, 2), guide = "none") +
+#   theme_graph()
+```
+
+Leaving aside the records in the giant cluster for now, we can examine the number of visits per patient ID for the other patients.
+
+```{r}
+# Histogram of visits per patient
+records_per_patient %>%  
+  filter(n_records < 1000) %>%
+  ggplot(aes(n_records)) +
+  geom_histogram(bins = 70) +
+  theme_bw() +
+  labs(x = "Number of visits per patient",
+       y = "Count",
+       title = "Distribution of visits per patient (excluding extreme outlier)")
+```
+
+What is the typical number of antenatal visits per patient that we would expect?
+
+### Trying a stricter threshold for matching
+
+We can try performing the matching again with a higher threshold for what constitutes a match. We can examine the distribution of probabilities from the initial matching to decide on a new threshold.
+
+```{r}
+# Histogram of posterior match probabilities
+ggplot(matched_pairs, aes(posterior)) +
+  geom_histogram(bins = 70) +
+  theme_bw() +
+  labs(x = "Posterior match probability",
+       y = "Count",
+       title = "Distribution of posterior match probabilities")
+```
+
+Let's try increasing the threshold to 93%.
+
+```{r}
+# Perform the probabilistic matching
+fl_out_93 <- fastLink(
+  dfA = anc_clean,
+  dfB = anc_clean,
+  varnames = matching_vars,
+  stringdist.match = stringdist_vars,
+  numeric.match = numeric_vars,
+  threshold.match = 0.93
+)
+
+# Extract matched pairs
+matched_pairs_93 <- data.frame(a = as.character(fl_out_93$matches$inds.a),
+                               b = as.character(fl_out_93$matches$inds.b),
+                               posterior = fl_out_93$posterior)
+
+# Build the graph
+g_93 <- graph_from_data_frame(d = matched_pairs_93,
+                              directed = FALSE,
+                              vertices = as.character(anc_clean$record_id))
+
+clusters_93 <- components(g_93)
+
+patient_id_map_93 <- data.frame(
+  record_id = names(clusters_93$membership),
+  patient_id = clusters_93$membership,
+  stringsAsFactors = FALSE
+) %>%
+  mutate(record_id = as.integer(record_id))
+
+anc_matched_93 <- anc_clean %>%
+  left_join(patient_id_map_93, by = "record_id")
+
+records_per_patient_93 <- anc_matched_93 %>% 
+  group_by(patient_id) %>% 
+  summarise(n_records = n()) %>%
+  arrange(desc(n_records))
+```
+
+We are now getting `r length(unique(anc_matched_93$patient_id))` unique patients in the dataset, with `r records_per_patient_93$n_records[1]` records matched to the first patient ID. This is an improvement, but still an issue.
+
