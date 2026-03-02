@@ -1,0 +1,197 @@
+---
+title: "MixSIAR model"
+output: html_document
+date: "2026-03-02"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(MixSIAR)
+
+DATA_DIR <- "./queries/981-archaeochemistry/data/"
+PLOT_DIR <- "./queries/981-archaeochemistry/plots/"
+MODEL_DIR <- "./queries/981-archaeochemistry/models/"
+```
+
+## Introduction
+
+For a more explainable model than the initial Dirichlet process model, I will attempt to use the `MixSIAR` package to create a mixture model.
+
+## Import data
+
+First we will import the pot data:
+
+```{r}
+ds <- read.csv(paste0(DATA_DIR, 'sustainlipids.csv'), header = TRUE)
+balk <-  subset(ds, grouping == "Balkans")
+groups <- split(balk$D13C, balk$bin)
+head(balk)
+```
+
+Next, we will import the reference fat data. I have two possibilities for this. `reference_fats1.csv` is the file of reference data you sent me. Since it does not have reference for dairy and includes other categories like mollusc, I also created `reference_fats2.csv` based on the supplement of the paper you shared. The second reference fat data is in the mean / SD format and includes dairy, nonruminant fat, ruminant fat, and marine fat.
+
+```{r}
+# Load reference source data
+ref_sources1 <- read.csv(paste0(DATA_DIR, 'reference_fats1.csv'), header = TRUE)
+head(ref_sources1)
+unique(ref_sources1$X) # types of fat in ref_sources1
+
+ref_sources2 <- read.csv(paste0(DATA_DIR, 'reference_fats2.csv'), header = TRUE)
+head(ref_sources2)
+unique(ref_sources2$X) # types of fat in ref_sources2
+```
+
+## Exploratory visualisation
+
+We can look at a basic boxplot of $\Delta^{13}C$ for the different regions:
+
+```{r}
+# Boxplot of Δ13C by bin
+# Does in fact seem like Δ13C decreases as we move north for the most part
+ggplot(balk, aes(x = bin, y = D13C)) +
+  geom_boxplot() +
+  labs(title = "Boxplot of Δ13C by Bin", x = "Bin", y = "Δ13C") +
+  theme_minimal()
+```
+
+We do seem to see the expected trend of $\Delta^{13}C$ decreasing from south to north.
+
+## `MixSIAR` model
+
+### Creating the model
+
+In this type of model, we treat each pot as a weighted sum of different food sources, each of which has a different mean. The weights for each pot are drawn from a Dirichlet distribution, which can differ by region (bin). I ran the model using the second set of reference data so that we have references for dairy.
+
+```{r}
+# Load the mixture data
+mix <- load_mix_data(
+  filename = paste0(DATA_DIR, 'balk.csv'),
+  iso_names = c("d13C16", "d13C18"),
+  factors = "bin",
+  fac_random = TRUE, # including a random effect for region
+  fac_nested = FALSE, # we don't have a nested structure in this case
+  cont_effects = NULL # column headings of continuous effects -- N/A in this case
+)
+
+# Load the source data
+# Mean data from supplement shared by Isabel:
+source <- load_source_data(
+  filename = paste0(DATA_DIR, 'reference_fats2.csv'),
+  source_factors = NULL,
+  conc_dep = FALSE, # do not have concentration dependence
+  data_type = "means",
+  mix = mix
+)
+
+# Load the discrimination data
+# we aren't looking at tissue of a consumer, so we just set TDF to 0
+# Made a discrimination file following this format:
+# https://github.com/brianstock/MixSIAR/blob/master/inst/extdata/wolves_discrimination.csv
+discr <- load_discr_data(
+  filename = paste0(DATA_DIR, 'discrimination2.csv'),
+  mix = mix
+)
+```
+
+We can visualise the isospace plot:
+
+```{r warning=FALSE}
+# Make an isospace plot
+plot_data(filename = paste0(PLOT_DIR, 'isospace_plot.png'),
+          plot_save_pdf = FALSE,
+          plot_save_png = TRUE,
+          mix,
+          source,
+          discr)
+```
+
+We are looking for the pots to fall within the convex hull of the sources. It seems like most of the pots do fall within the convex hull, which is a good sign for model fit.
+
+We set an uninformative prior for the model, assuming that all fat sources are equally likely. We can visualise the prior distribution:
+
+```{r}
+# default "UNINFORMATIVE" / GENERALIST prior (alpha = 1)
+plot_prior(alpha.prior= 1,source)
+
+# Write the JAGS model file
+model_filename <- paste0(MODEL_DIR, "MixSIAR_model.txt")   # Name of the JAGS model file
+resid_err <- TRUE
+process_err <- TRUE
+write_JAGS_model(model_filename, resid_err, process_err, mix, source)
+```
+
+Finally, we can run the model, starting with a test run. You can see all the pre-set MCMC run options here: https://brianstock.github.io/MixSIAR/articles/wolves_ex.html.
+
+```{r}
+# Run the model
+# test run to check if the model is working as expected
+jags.test <- run_model(run = "test", mix, source, discr, model_filename)
+
+output_options <- list(summary_save = TRUE,
+                       summary_name = paste0(MODEL_DIR, "summary_statistics"),
+                       sup_post = FALSE,
+                       plot_post_save_pdf = TRUE,
+                       plot_post_name = paste0(PLOT_DIR, "posterior_density"),
+                       sup_pairs = FALSE,
+                       plot_pairs_save_pdf = TRUE,
+                       plot_pairs_name = paste0(PLOT_DIR, "pairs_plot"),
+                       sup_xy = TRUE,
+                       plot_xy_save_pdf = FALSE,
+                       plot_xy_name = paste0(PLOT_DIR, "xy_plot"),
+                       gelman = TRUE,
+                       heidel = FALSE,
+                       geweke = TRUE,
+                       diag_save = TRUE,
+                       diag_name = paste0(MODEL_DIR, "diagnostics"),
+                       indiv_effect = FALSE,
+                       plot_post_save_png = FALSE,
+                       plot_pairs_save_png = FALSE,
+                       plot_xy_save_png = FALSE,
+                       diag_save_ggmcmc = FALSE)
+
+output_JAGS(jags.test, mix, source, output_options)
+```
+
+### Interpreting the model
+
+Based on the model results, we want to use the posterior distributions to investigate trends in the contributions of different food sources across the different regions (bins). We can also look at the model diagnostics to check for convergence and model fit.
+
+```{r}
+post_array <- jags.test$BUGSoutput$sims.list$p.fac1
+bin_names    <- unique(balk$bin)
+source_names <- source$source_names
+
+# Build tidy dataframe
+posterior_df <- expand.grid(
+  iter = 1:1500,
+  bin = bin_names,
+  source = source_names
+)
+
+posterior_df$prop <- as.vector(post_array)
+
+summary_df <- posterior_df %>%
+  group_by(bin, source) %>%
+  summarise(
+    median = median(prop),
+    lower  = quantile(prop, 0.025),
+    upper  = quantile(prop, 0.975),
+    .groups = "drop"
+  )
+
+# Plot the credible intervals for each source contribution by bin
+ggplot(summary_df, aes(x = bin, y = median)) +
+  geom_point() +
+  geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.2) +
+  facet_wrap(~ source, scales = "free_y") +
+  theme_minimal() +
+  labs(
+    title = "Posterior source contributions by region",
+    x = "Region (south → north)",
+    y = "Estimated proportion (median ± 95% CI)"
+  )
+```
+
+We have a lot of overlap in credible intervals. We are trying to estimate four sources (marine, ruminant fat, nonruminant fat, dairy) using only 2 isotopes, so it is not surprising that we have a lot of uncertainty in the estimates. We do see some trends, however, such as increase in dairy from south to north, and a strong marine contribution in region `a`.

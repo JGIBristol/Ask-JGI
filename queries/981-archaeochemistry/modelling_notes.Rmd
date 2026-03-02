@@ -1,0 +1,45 @@
+---
+title: "Bayesian models for lipid composition"
+output: html_document
+date: "2026-02-13"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Model from her original code
+
+Dirichlet process mixture of Gaussians:
+
+$$
+y_i \sim \sum_{k = 1}^\text{n clusters} \pi_k N(\mu_k, \sigma^2_k)
+$$
+
+Tells us the distribution of $\Delta^{13}C$ as a mixture of an unknown number of Gaussians.
+
+Her code gives a posterior value for number of clusters and weights (how do I extract that? apparently `dp$numberClusters` is the number of cluster counts in the final iteration, not the posterior)
+
+She is fitting 8 of those models, one per region.
+
+Then she measures distance between the distributions using Hellinger distance.
+
+## Potential desired type of model
+
+For each type of fat $k$, pot $i$ and region $r$:
+
+-   Each type of fat has a mean value for the isotope $\mu_k$ and a standard deviation $\sigma_k$.
+-   Then for a pot, $\theta_i = \sum_k w_{ik} \mu_k$ where $w_{ik}$ is the proportion of fat type $k$ in pot $i$.
+    -   The weights $w_ik$ sum to 1
+    -   $w_i \sim \text{Dirichlet}(\alpha_r)$, so the relative weighting of different food sources varies by region
+-   Then $y_i \sim N(\theta_i, \sigma_{obs}^2)$
+
+## `MixSIAR` model
+
+If I want to recover 3 proportions (dairy, ruminant meat, and non-ruminant meat), it looks like I need to use $\delta^{13}C_{16:0}$ and $\delta^{13} C_{18:0}$ (can't find 3 categories using only one isotope value, so just using $\Delta^{13}C$ is not sufficient).
+
+-   Use both isotopes
+
+-   Region as fixed effect or random effect?
+
+I need reference values for the isotopes, I believe – not sure if she thinks those vary spatially.

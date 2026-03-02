@@ -1,0 +1,118 @@
+,ref,correction,fatType,Species,Provenance,sampleID,d13C16,d13C18,D13C,C16Percent,C18Percent
+adipose_ruminant,Dudd 1999,corr,Adipose,Cow,Britain,C1BB,-29.3,-32.2,-2.9,28.9,21.5
+adipose_ruminant,Dudd 1999,corr,Adipose,Cow,Britain,C1BK,-29.1,-31.9,-2.8,28.8,30.7
+adipose_ruminant,Dudd 1999,corr,Adipose,Cow,Britain,C1BR,-30.2,-32.7,-2.5,26.1,12.5
+adipose_ruminant,Dudd 1999,corr,Adipose,Cow,Britain,C2BB,-30.3,-32,-1.7,27.3,16.1
+adipose_ruminant,Dudd 1999,corr,Adipose,Sheep,Britain,E8B91 (ewe orig.),-28.6,-30.4,-1.8,20.8,32.9
+adipose_ruminant,Dudd 1999,corr,Adipose,Sheep,Britain,Hebridean lamb,-28.8,-31.7,-2.9,25.1,21.9
+adipose_ruminant,Dudd 1999,corr,Adipose,Sheep,Britain,L1B91,-29.8,-31.6,-1.8,17.1,53.3
+adipose_ruminant,Dudd 1999,corr,Adipose,Sheep,Britain,L1K91,-29.4,-30.8,-1.4,22.2,29.8
+adipose_ruminant,Dudd 1999,corr,Adipose,Sheep,Britain,L2B91,-29.8,-32.2,-2.4,21,39
+adipose_ruminant,Dudd 1999,corr,Adipose,Sheep,Britain,L2K91,-30.9,-32.9,-2,24.8,28.8
+adipose_ruminant,Dudd 1999,corr,Adipose,Sheep,Britain,L3B91,-30.6,-32.7,-2.1,21.1,44.6
+adipose_ruminant,Dudd 1999,corr,Adipose,Sheep,Britain,L3K91,-30.8,-32.6,-1.8,23.4,33.3
+adipose_ruminant,Dudd 1999,corr,Adipose,Sheep,Britain,Mutton fat,-29.2,-30.5,-1.3,19.3,36.7
+adipose_ruminant,Dudd 1999,corr,Adipose,Sheep,Britain,Mutton leg fat,-29.7,-31.5,-1.8,18,29.4
+adipose_ruminant,Dudd 1999,corr,Adipose,Sheep,Britain,Mutton shoulder fat,-29.6,-31.5,-1.9,20.1,24
+adipose_ruminant,Dudd 1999,corr,Adipose,Sheep,Britain,Ram lamb 1,-29.1,-30.8,-1.7,35.9,39.6
+adipose_ruminant,Dudd 1999,corr,Adipose,Sheep,Britain,Ram lamb 2,-28.8,-30.5,-1.7,20,26.2
+adipose_ruminant,Dudd 1999,corr,Dairy,Sheep,Britain,Heb lamb (post-birth),-29.4,-33.8,-4.4,30.4,25.4
+adipose_ruminant,Dudd 1999,corr,Dairy,Sheep,Britain,Hebridean lamb 2,-29.8,-34.2,-4.4,26,26.4
+adipose_ruminant,Dudd 1999,corr,Dairy,Cow,Britain,Mallard milk 1st,-28.2,-32.4,-4.2,35.8,14.8
+adipose_ruminant,Dudd 1999,corr,Dairy,Cow,Britain,Mallard milk post birth,-31.2,-34.8,-3.6,23.9,35.6
+adipose_ruminant,Dudd 1999,corr,Dairy,Cow,Britain,Sarah post birth,-27.8,-32.6,-4.8,47,11.2
+adipose_ruminant,Dudd 1999,corr,Dairy,Cow,Britain,Sarah pre birth,-28.5,-34.4,-5.9,41.1,13.2
+adipose_ruminant,Dudd 1999,corr,Dairy,Cow,Britain,Tulip 1,-29.3,-34.1,-4.8,29.8,19.5
+adipose_ruminant,Dudd 1999,corr,Dairy,Cow,Britain,Tulip 2,-29,-34.5,-5.5,36.4,16.7
+adipose_ruminant,Dudd 1999,corr,Dairy,Cow,Britain,Twinkle 2 ,-30,-35.3,-5.3,40.7,10.4
+adipose_ruminant,Dudd 1999,corr,Dairy,Cow,Britain,Twinkle 2 bis,-28.3,-33.5,-5.2,34.8,10.5
+freshwater_fish,Bondetti et al. 2021,,Freshwater fish,Wels catfish,Russia,Wels catfish,-27.7,-27.8,-0.1,,
+freshwater_fish,Bondetti et al. 2021,,Freshwater fish,Cisco,Russia,Cisco,-35.5,-35.5,0,,
+freshwater_fish,Bondetti et al. 2021,,Freshwater fish,Ide,Russia,Ide,-29.3,-29,0.3,,
+freshwater_fish,Bondetti et al. 2021,,Freshwater fish,Grayling,Russia,Grayling,-34.4,-34.1,0.3,,
+freshwater_fish,Bondetti et al. 2021,,Freshwater fish,Northern pike,Russia,Northern pike,-35,-34.4,0.6,,
+freshwater_fish,Bondetti et al. 2021,,Freshwater fish,Crucian carp,Russia,Crucian carp,-35,-34.2,0.8,,
+freshwater_fish,Bondetti et al. 2021,,Freshwater fish,Northern pike,Russia,Northern pike,-36.4,-35.5,1,,
+freshwater_fish,Bondetti et al. 2021,,Freshwater fish,Roach,Russia,Roach,-36.3,-34.7,1.7,,
+freshwater_fish,Bondetti et al. 2021,,Freshwater fish,European perch,Russia,European perch,-32.1,-29.9,2.2,,
+freshwater_fish,Lucquin et al. 2016,,Freshwater fish,Carp,Britain,Carp,-30.16,-28.16,2,,
+freshwater_fish,Lucquin et al. 2016,,Freshwater fish,Pike,Britain,Pike,-28.16,-25.76,2.4,,
+freshwater_fish,Lucquin et al. 2016,,Freshwater fish,Perch,Britain,Perch,-30.96,-28.36,2.6,,
+freshwater_fish,Craig et al. 2011,,Freshwater fish,Tench,Denmark,Tench,-24.36,-26.46,-2.1,,
+freshwater_fish,Craig et al. 2011,,Freshwater fish,Tench,Denmark,Tench,-27.86,-28.96,-1.1,,
+freshwater_fish,Craig et al. 2011,,Freshwater fish,Pike,Denmark,Pike,-34.96,-35.16,-0.2,,
+freshwater_fish,Craig et al. 2011,,Freshwater fish,Tench,Denmark,Tench,-37.36,-36.66,0.7,,
+freshwater_fish,Pääkkönen et al. 2016,,Freshwater fish,Roach,Finland,Roach,-29.45,-31.95,-2.5,,
+freshwater_fish,Pääkkönen et al. 2016,,Freshwater fish,Vendace,Finland,Vendace,-27.95,-29.55,-1.6,,
+freshwater_fish,Pääkkönen et al. 2016,,Freshwater fish,Perch,Finland,Perch,-35.35,-36.85,-1.5,,
+freshwater_fish,Pääkkönen et al. 2016,,Freshwater fish,Vendace,Finland,Vendace,-36.85,-37.85,-1,,
+freshwater_fish,Pääkkönen et al. 2016,,Freshwater fish,Perch,Finland,Perch,-32.05,-32.65,-0.6,,
+freshwater_fish,Pääkkönen et al. 2016,,Freshwater fish,Bleak,Finland,Bleak,-34.15,-34.55,-0.4,,
+freshwater_fish,Pääkkönen et al. 2016,,Freshwater fish,Perch,Finland,Perch,-32.05,-32.35,-0.3,,
+freshwater_fish,Pääkkönen et al. 2016,,Freshwater fish,Northern pike,Finland,Northern pike,-33.25,-32.95,0.3,,
+freshwater_fish,Pääkkönen et al. 2016,,Freshwater fish,Pikeperch,Finland,Pikeperch,-30.25,-29.95,0.3,,
+freshwater_fish,Pääkkönen et al. 2016,,Freshwater fish,Northern pike,Finland,Northern pike,-31.75,-31.35,0.4,,
+freshwater_fish,Pääkkönen et al. 2016,,Freshwater fish,Bleak,Finland,Bleak,-35.65,-35.15,0.5,,
+freshwater_fish,Pääkkönen et al. 2016,,Freshwater fish,Perch,Finland,Perch,-35.15,-34.65,0.5,,
+freshwater_fish,Pääkkönen et al. 2016,,Freshwater fish,Perch,Finland,Perch,-35.25,-34.75,0.5,,
+freshwater_fish,Pääkkönen et al. 2016,,Freshwater fish,Perch,Finland,Perch,-32.95,-32.35,0.6,,
+freshwater_fish,Pääkkönen et al. 2016,,Freshwater fish,Bleak,Finland,Bleak,-26.62,-25.92,0.7,,
+freshwater_fish,Pääkkönen et al. 2016,,Freshwater fish,Perch,Finland,Perch,-33.35,-32.55,0.8,,
+freshwater_fish,Pääkkönen et al. 2016,,Freshwater fish,Pikeperch,Finland,Pikeperch,-34.55,-33.75,0.8,,
+freshwater_fish,Pääkkönen et al. 2016,,Freshwater fish,Perch,Finland,Perch,-34.35,-33.25,1.1,,
+freshwater_fish,Pääkkönen et al. 2016,,Freshwater fish,Roach,Finland,Roach,-34.05,-32.95,1.1,,
+freshwater_fish,Pääkkönen et al. 2016,,Freshwater fish,Northern pike,Finland,Northern pike,-33.45,-32.25,1.2,,
+freshwater_fish,Pääkkönen et al. 2016,,Freshwater fish,Vendace,Finland,Vendace,-29.15,-27.85,1.3,,
+freshwater_fish,Pääkkönen et al. 2016,,Freshwater fish,Vendace,Finland,Vendace,-28.25,-26.85,1.4,,
+freshwater_fish,Pääkkönen et al. 2016,,Freshwater fish,Bleak,Finland,Bleak,-33.85,-32.35,1.5,,
+freshwater_fish,Pääkkönen et al. 2016,,Freshwater fish,Bleak,Finland,Bleak,-36.05,-34.55,1.5,,
+freshwater_fish,Pääkkönen et al. 2016,,Freshwater fish,Ide,Finland,Ide,-33.45,-31.85,1.6,,
+freshwater_fish,Pääkkönen et al. 2016,,Freshwater fish,Ide,Finland,Ide,-32.85,-31.25,1.6,,
+freshwater_fish,Pääkkönen et al. 2016,,Freshwater fish,Perch,Finland,Perch,-34.95,-33.35,1.6,,
+freshwater_fish,Pääkkönen et al. 2016,,Freshwater fish,Burbot,Finland,Burbot,-34.35,-32.35,2,,
+freshwater_gastropod,Cramp and Evershed 2014,,Freshwater gastropods,Winkle,Britain,Winkle,-21.4,-18.8,-2.6,,
+freshwater_gastropod,Cramp and Evershed 2014,,Freshwater gastropods,Winkle,Britain,Winkle,-20.2,-17.8,-2.4,,
+freshwater_gastropod,Cramp and Evershed 2014,,Freshwater gastropods,Winkle,Britain,Winkle,-20.8,-18.6,-2.2,,
+freshwater_gastropod,Cramp and Evershed 2014,,Freshwater gastropods,Winkle,Britain,Winkle,-20.3,-18.7,-1.6,,
+freshwater_gastropod,Cramp and Evershed 2014,,Freshwater gastropods,Winkle,Britain,Winkle,-20.2,-18.8,-1.4,,
+freshwater_mollusc,Bondetti et al. 2021,,Freshwater mollusc,Snail,Russia,Snail,-32.8,-33.2,-0.4,,
+freshwater_mollusc,Bondetti et al. 2021,,Freshwater mollusc,Snail,Russia,Snail,-34,-33.9,0.1,,
+freshwater_mollusc,Bondetti et al. 2021,,Freshwater mollusc,Snail,Russia,Snail,-33.4,-33.1,0.3,,
+freshwater_mollusc,Bondetti et al. 2021,,Freshwater mollusc,Snail,Russia,Snail,-33.5,-33.2,0.3,,
+freshwater_mollusc,Bondetti et al. 2021,,Freshwater mollusc,Snail,Russia,Snail,-34,-33.7,0.3,,
+freshwater_mollusc,Bondetti et al. 2021,,Freshwater mollusc,Mussel,Russia,Mussel,-31.6,-31.2,0.4,,
+freshwater_mollusc,Bondetti et al. 2021,,Freshwater mollusc,Snail,Russia,Snail,-33,-32.5,0.5,,
+freshwater_mollusc,Bondetti et al. 2021,,Freshwater mollusc,Mussel,Russia,Mussel,-32.6,-31.8,0.7,,
+freshwater_mollusc,Bondetti et al. 2021,,Freshwater mollusc,Mussel,Russia,Mussel,-34.2,-33.5,0.8,,
+freshwater_mollusc,Bondetti et al. 2021,,Freshwater mollusc,Snail,Russia,Snail,-33.7,-32.9,0.8,,
+freshwater_mollusc,Bondetti et al. 2021,,Freshwater mollusc,Mussel,Russia,Mussel,-33.8,-32.8,1,,
+freshwater_mollusc,Bondetti et al. 2021,,Freshwater mollusc,Snail,Russia,Snail,-34.3,-33.3,1,,
+freshwater_mollusc,Bondetti et al. 2021,,Freshwater mollusc,Mussel,Russia,Mussel,-34.2,-33.1,1.1,,
+freshwater_mollusc,Bondetti et al. 2021,,Freshwater mollusc,Mussel,Russia,Mussel,-35.2,-34.1,1.1,,
+freshwater_mollusc,Bondetti et al. 2021,,Freshwater mollusc,Mussel,Russia,Mussel,-34.2,-33,1.2,,
+freshwater_mollusc,Bondetti et al. 2021,,Freshwater mollusc,Snail,Russia,Snail,-34,-32.7,1.3,,
+freshwater_mollusc,Bondetti et al. 2021,,Freshwater mollusc,Snail,Russia,Snail,-34.5,-33.1,1.4,,
+freshwater_mollusc,Bondetti et al. 2021,,Freshwater mollusc,Mussel,Russia,Mussel,-33.8,-32.2,1.5,,
+freshwater_mollusc,Bondetti et al. 2021,,Freshwater mollusc,Mussel,Russia,Mussel,-33,-31.2,1.9,,
+freshwater_mollusc,Bondetti et al. 2021,,Freshwater mollusc,Mussel,Russia,Mussel,-32.2,-30.2,2,,
+migratory_fish,Bondetti et al. 2021,,Migratory fish,Danube sturgeon,Russia,Danube sturgeon,-26,-26.2,-0.2,,
+migratory_fish,Pääkkönen et al. 2016,,Migratory fish,Salmon,Finland,Salmon,-24.27,-23.87,0.4,,
+migratory_fish,Pääkkönen et al. 2016,,Migratory fish,Salmon,Finland,Salmon,-24.97,-23.57,1.4,,
+migratory_fish,Cramp and Evershed 2014,,Migratory fish,Eel,Britain,Eel,-22.9,-21.7,-1.2,,
+migratory_fish,Cramp and Evershed 2014,,Migratory fish,Eel,Britain,Eel,-34.4,-33.5,-0.9,,
+migratory_fish,Cramp and Evershed 2014,,Migratory fish,Eel,Britain,Eel,-28.6,-28,-0.6,,
+migratory_fish,Cramp and Evershed 2014,,Migratory fish,Salmon,Britain,Salmon,-24,-24,0,,
+migratory_fish,Cramp and Evershed 2014,,Migratory fish,Eel,Britain,Eel,-20.3,-20.7,0.4,,
+migratory_fish,Cramp and Evershed 2014,,Migratory fish,Salmon,Britain,Salmon,-24.7,-25.4,0.7,,
+migratory_fish,Cramp and Evershed 2014,,Migratory fish,Eel,Britain,Eel,-20,-22.8,2.8,,
+migratory_fish,Lucquin et al. 2016,,Migratory fish,Salmon,Britain,Salmon,-24.55,-24.5,0.05,,
+migratory_fish,Lucquin et al. 2016,,Migratory fish,Salmon,Britain,Salmon,-24.35,-24.23,0.12,,
+adipose_nonruminant,Dudd 1999,corr,Porcine adipose,Pig,Britain,Andy Stott C3 pig,-24.8,-25.7,-0.9,27.3,17.2
+adipose_nonruminant,Dudd 1999,corr,Porcine adipose,Pig,Britain,P1T121 (rep.),-25.2,-24.4,0.8,24,12.1
+adipose_nonruminant,Dudd 1999,corr,Porcine adipose,Pig,Britain,P2T121,-26.8,-25.2,1.6,24.3,9.9
+adipose_nonruminant,Dudd 1999,corr,Porcine adipose,Pig,Britain,P3T121,-26.9,-25.2,1.7,25,10.5
+adipose_nonruminant,Dudd 1999,corr,Porcine adipose,Pig,Britain,P4T121,-25.9,-24.8,1.1,26.1,12.3
+adipose_nonruminant,Dudd 1999,corr,Porcine adipose,Pig,Britain,P5T121,-26.4,-25.3,1.1,20.1,10.4
+adipose_nonruminant,Dudd 1999,corr,Porcine adipose,Pig,Britain,P6T121,-25.5,-24.2,1.3,24.8,11.9
+adipose_nonruminant,Dudd 1999,corr,Porcine adipose,Pig,Britain,P7T121,-26.1,-24.8,1.3,22.4,8.9
+adipose_nonruminant,Dudd 1999,corr,Porcine adipose,Pig,Britain,P8T121,-25.8,-24.5,1.3,23.1,10
