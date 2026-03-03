@@ -10,9 +10,9 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(MixSIAR)
 
-DATA_DIR <- "./queries/981-archaeochemistry/data/"
-PLOT_DIR <- "./queries/981-archaeochemistry/plots/"
-MODEL_DIR <- "./queries/981-archaeochemistry/models/"
+DATA_DIR <- "./data/"
+PLOT_DIR <- "./plots/"
+MODEL_DIR <- "./models/"
 ```
 
 ## Introduction
@@ -30,7 +30,9 @@ groups <- split(balk$D13C, balk$bin)
 head(balk)
 ```
 
-Next, we will import the reference fat data. I have two possibilities for this. `reference_fats1.csv` is the file of reference data you sent me. Since it does not have reference for dairy and includes other categories like mollusc, I also created `reference_fats2.csv` based on the supplement of the paper you shared. The second reference fat data is in the mean / SD format and includes dairy, nonruminant fat, ruminant fat, and marine fat.
+Next, we will import the reference fat data. I have two possibilities for this. `reference_fats1.csv` is the file of reference data you sent me. I created an initial column in the data that has the fat types `adipose_ruminant`, `adipose_nonruminant`, `dairy`, `freshwater_fish`, `freshwater_gastropod`, `freshwater_mollusc`, and `migratory_fish`.
+
+I also created `reference_fats2.csv` based on the supplement of the paper you shared. The second reference fat data is in the mean / SD format and includes dairy, nonruminant fat, ruminant fat, and marine fat.
 
 ```{r}
 # Load reference source data
@@ -62,7 +64,7 @@ We do seem to see the expected trend of $\Delta^{13}C$ decreasing from south to 
 
 ### Creating the model
 
-In this type of model, we treat each pot as a weighted sum of different food sources, each of which has a different mean. The weights for each pot are drawn from a Dirichlet distribution, which can differ by region (bin). I ran the model using the second set of reference data so that we have references for dairy.
+In this type of model, we treat each pot as a weighted sum of different food sources, each of which has a different mean. The weights for each pot are drawn from a Dirichlet distribution, which can differ by region (bin). I ran the model using the reference data you sent me.
 
 ```{r}
 # Load the mixture data
@@ -76,12 +78,12 @@ mix <- load_mix_data(
 )
 
 # Load the source data
-# Mean data from supplement shared by Isabel:
+# Reference data shared by Isabel
 source <- load_source_data(
-  filename = paste0(DATA_DIR, 'reference_fats2.csv'),
+  filename = paste0(DATA_DIR, 'reference_fats1.csv'),
   source_factors = NULL,
   conc_dep = FALSE, # do not have concentration dependence
-  data_type = "means",
+  data_type = "raw",
   mix = mix
 )
 
@@ -90,7 +92,7 @@ source <- load_source_data(
 # Made a discrimination file following this format:
 # https://github.com/brianstock/MixSIAR/blob/master/inst/extdata/wolves_discrimination.csv
 discr <- load_discr_data(
-  filename = paste0(DATA_DIR, 'discrimination2.csv'),
+  filename = paste0(DATA_DIR, 'discrimination1.csv'),
   mix = mix
 )
 ```
@@ -104,17 +106,15 @@ plot_data(filename = paste0(PLOT_DIR, 'isospace_plot.png'),
           plot_save_png = TRUE,
           mix,
           source,
-          discr)
+          discr,
+          return_obj = TRUE)
 ```
 
 We are looking for the pots to fall within the convex hull of the sources. It seems like most of the pots do fall within the convex hull, which is a good sign for model fit.
 
-We set an uninformative prior for the model, assuming that all fat sources are equally likely. We can visualise the prior distribution:
+We set an uninformative prior for the model, assuming that all fat sources are equally likely.
 
 ```{r}
-# default "UNINFORMATIVE" / GENERALIST prior (alpha = 1)
-plot_prior(alpha.prior= 1,source)
-
 # Write the JAGS model file
 model_filename <- paste0(MODEL_DIR, "MixSIAR_model.txt")   # Name of the JAGS model file
 resid_err <- TRUE
@@ -151,7 +151,7 @@ output_options <- list(summary_save = TRUE,
                        plot_xy_save_png = FALSE,
                        diag_save_ggmcmc = FALSE)
 
-output_JAGS(jags.test, mix, source, output_options)
+# output_JAGS(jags.test, mix, source, output_options)
 ```
 
 ### Interpreting the model
@@ -163,9 +163,11 @@ post_array <- jags.test$BUGSoutput$sims.list$p.fac1
 bin_names    <- unique(balk$bin)
 source_names <- source$source_names
 
+n_iter <- dim(post_array)[1]
+
 # Build tidy dataframe
 posterior_df <- expand.grid(
-  iter = 1:1500,
+  iter = 1:n_iter,
   bin = bin_names,
   source = source_names
 )
@@ -195,3 +197,37 @@ ggplot(summary_df, aes(x = bin, y = median)) +
 ```
 
 We have a lot of overlap in credible intervals. We are trying to estimate four sources (marine, ruminant fat, nonruminant fat, dairy) using only 2 isotopes, so it is not surprising that we have a lot of uncertainty in the estimates. We do see some trends, however, such as increase in dairy from south to north, and a strong marine contribution in region `a`.
+
+I will demonstrate how we could compare the contribution of dairy between two regions:
+
+```{r}
+# Extract posterior samples for dairy contribution in regions a and g1
+dairy_a <- post_array[, which(bin_names == "a"), which(source_names == "dairy")]
+dairy_g1 <- post_array[, which(bin_names == "g1"), which(source_names == "dairy")]
+# Calculate the difference in dairy contribution between regions a and g1
+dairy_diff <- dairy_g1 - dairy_a
+# Summarise the difference
+dairy_diff_summary <- data.frame(
+  median = median(dairy_diff),
+  lower = quantile(dairy_diff, 0.025),
+  upper = quantile(dairy_diff, 0.975)
+)
+dairy_diff_summary
+
+# Visualise the difference:
+ggplot(data.frame(diff = dairy_diff), aes(x = diff)) +
+  geom_density(fill = "lightblue", alpha = 0.5) +
+  geom_vline(xintercept = 0, linetype = "dashed") +
+  labs(
+    title = "Posterior distribution of dairy difference (g1 - a)",
+    x = "Difference in proportion",
+    y = "Density"
+  ) +
+  theme_minimal()
+
+# Posterior probability that dairy is more prevalent in region g1 than a
+prob_g1_greater <- mean(dairy_diff > 0)
+prob_g1_greater
+```
+
+The median difference in dairy (`r dairy_diff_summary$median`) contribution tells us the estimated difference in proportion of dairy for pots in region g1 compared to region a. The credible interval gives us a range of plausible values for this difference. The posterior probability that dairy is more prevalent in region g1 than a (`r round(prob_g1_greater*100, 2)`%) tells us how likely it is that the contribution of dairy is higher in g1 compared to a based on the model results. The visualisation of the posterior distribution of dairy difference helps us see the range of possible values for the difference and how much of the distribution is above or below zero.
